@@ -1,10 +1,8 @@
-# nutri_bot.py
-
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Я твой нутри-бот 🤖")
+    await update.message.reply_text("Привет! Я работаю!")
 
 def main():
     app = ApplicationBuilder().token("5284761727:AAG5nQPZNpWLN4Gc3fCpYGtGBT83wYLNK0U").build()
