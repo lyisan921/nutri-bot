@@ -133,7 +133,7 @@ def main():
     # Ваш токен сюда
     TOKEN = "5284761727:AAG5nQPZNpWLN4Gc3fCpYGtGBT83wYLNK0U"
 
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = ApplicationBuilder().token(5284761727:AAG5nQPZNpWLN4Gc3fCpYGtGBT83wYLNK0U).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
