@@ -1,39 +1,37 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
-from apscheduler.schedulers.background import BackgroundScheduler
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # Твой токен
 TOKEN = "5284761727:AAG5nQPZNpWLN4Gc3fCpYGtGBT83wYLNK0U"
 
-# Пример простой команды
+# Обработка команды /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Я — нутри-бот 🥦")
+    await update.message.reply_text("Привет! Я нутри-бот 🥦")
 
-# Пример обработки сообщений
+# Обработка обычных сообщений
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
-    await update.message.reply_text(f"Ты написал: {text}")
+    await update.message.reply_text(f"Ты написал: {update.message.text}")
 
-# Если есть планировщик — он выглядит так:
+# Планировщик
 def start_scheduler():
-    scheduler = BackgroundScheduler()
-    # scheduler.add_job(твоя_функция, 'interval', seconds=60) — пример
+    scheduler = AsyncIOScheduler()
+    # scheduler.add_job(твоя_функция, 'interval', seconds=60)
     scheduler.start()
 
+# Основной запуск
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+    application = Application.builder().token(TOKEN).build()
 
-    # Команды
-    app.add_handler(CommandHandler("start", start))
+    # Хендлеры
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Обработка текстов
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-    # Планировщик, если нужен
+    # Планировщик
     start_scheduler()
 
-    # Запуск бота
-    app.run_polling()
+    # Запуск
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
