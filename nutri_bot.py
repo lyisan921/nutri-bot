@@ -188,7 +188,7 @@ async def test_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(
             "В любом случае ты можешь проконсультироваться лично и узнать подробности:\n"
-            "@alisa_son"
+            "@iam.lsn"
         )
         return ConversationHandler.END
 
