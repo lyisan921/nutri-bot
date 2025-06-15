@@ -7,8 +7,6 @@ from telegram.ext import (
 GENDER, AGE, WEIGHT, HEIGHT, ACTIVITY, GOAL = range(6)
 TEST_START, TEST_Q1, TEST_Q2, TEST_Q3, TEST_Q4, TEST_Q5, TEST_Q6, TEST_Q7, TEST_Q8, TEST_Q9, TEST_Q10 = range(6, 17)
 
-user_data = {}
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [KeyboardButton("🔢 Рассчитать калории")],
@@ -57,8 +55,8 @@ async def gender(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
         )
         return GENDER
-    user_data['gender'] = text
-    await update.message.reply_text("Укажи возраст (целое число):", reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True))
+    context.user_data['gender'] = text
+    await update.message.reply_text("Укажи возраст (целое число):")
     return AGE
 
 async def age(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -66,7 +64,7 @@ async def age(update: Update, context: ContextTypes.DEFAULT_TYPE):
         age = int(update.message.text)
         if age < 10 or age > 120:
             raise ValueError
-        user_data['age'] = age
+        context.user_data['age'] = age
     except:
         await update.message.reply_text("Пожалуйста, введи корректный возраст (например, 30):")
         return AGE
@@ -79,7 +77,7 @@ async def weight(update: Update, context: ContextTypes.DEFAULT_TYPE):
         weight = float(update.message.text.replace(',', '.'))
         if weight <= 0 or weight > 500:
             raise ValueError
-        user_data['weight'] = weight
+        context.user_data['weight'] = weight
     except:
         await update.message.reply_text("Пожалуйста, введи корректный вес (например, 65):")
         return WEIGHT
@@ -92,7 +90,7 @@ async def height(update: Update, context: ContextTypes.DEFAULT_TYPE):
         height = float(update.message.text.replace(',', '.'))
         if height <= 50 or height > 300:
             raise ValueError
-        user_data['height'] = height
+        context.user_data['height'] = height
     except:
         await update.message.reply_text("Пожалуйста, введи корректный рост (например, 170):")
         return HEIGHT
@@ -114,7 +112,7 @@ async def activity(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
         )
         return ACTIVITY
-    user_data['activity_factor'] = factor
+    context.user_data['activity_factor'] = factor
     keyboard = [["похудение", "поддержание", "набор"]]
     await update.message.reply_text(
         "Какая у тебя цель?",
@@ -131,9 +129,9 @@ async def goal(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
         )
         return GOAL
-    user_data['goal'] = goal
+    context.user_data['goal'] = goal
 
-    g = user_data
+    g = context.user_data
     gender = g['gender']
     weight = g['weight']
     height = g['height']
@@ -187,13 +185,15 @@ async def test_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return TEST_Q1
     else:
         await update.message.reply_text(
-            "В любом случае ты можешь проконсультироваться лично и узнать подробности:\n"
-            "@iam.lsn"
+            "В любом случае ты можешь проконсультироваться со мной лично и узнать подробности:\n"
+            "@iam_lsn"
         )
         return ConversationHandler.END
 
 async def test_question(update: Update, context: ContextTypes.DEFAULT_TYPE, number: int, text: str, next_state: int):
-    user_data[f'q{number}'] = update.message.text
+    context.user_data[f'q{number}'] = update.message.text
+    if next_state is None:
+        return ConversationHandler.END
     keyboard = [["1", "2", "3"]]
     await update.message.reply_text(
         f"❓ Вопрос {number+1}:\n{text}\n1 — Да, 2 — Иногда/не знаю, 3 — Нет",
@@ -229,10 +229,10 @@ async def test_q9(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return await test_question(update, context, 9, "Ты готов(а) работать над собой вместе с наставником?", TEST_Q10)
 
 async def test_q10(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_data['q10'] = update.message.text
+    context.user_data['q10'] = update.message.text
     total = 0
     for i in range(1, 11):
-        ans = user_data.get(f'q{i}', '3')
+        ans = context.user_data.get(f'q{i}', '3')
         if ans == "1":
             total += 3
         elif ans == "2":
@@ -242,7 +242,7 @@ async def test_q10(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if total >= 20:
         text = ("🎉 Поздравляю! По результатам теста тебе подходит личное ведение с нутрициологом.\n\n"
-                "Напиши @alisa_son, чтобы начать.")
+                "Напиши @iam_lsn, чтобы начать.")
     else:
         text = "Спасибо за участие! Ты можешь в любое время обратиться за помощью или пройти тест снова."
 
@@ -290,3 +290,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
